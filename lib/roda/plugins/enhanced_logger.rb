@@ -42,7 +42,7 @@ class Roda
                  end
 
           logger.send(meth, "#{request.request_method} #{request.path}", {
-            duration: format("%.4f", Process.clock_gettime(Process::CLOCK_MONOTONIC) - @_timer),
+            duration: (Process.clock_gettime(Process::CLOCK_MONOTONIC) - @_timer).round(4),
             status: status,
             verb: request.request_method,
             path: request.path,
