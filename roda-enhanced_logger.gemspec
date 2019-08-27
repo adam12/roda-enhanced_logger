@@ -12,4 +12,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "roda", ">= 3.19.0"
   spec.add_dependency "tty-logger", "< 1.0"
+
+  spec.required_ruby_version = ">= 2.1"
 end
