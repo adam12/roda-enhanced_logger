@@ -1,14 +1,29 @@
+# frozen-string-literal: true
+
 require "tty-logger"
 
-class Roda
-  module RodaPlugins
+class Roda # :nodoc:
+  module RodaPlugins # :nodoc:
+    # The enhanced_logger plugin provides a coloured, single line log
+    # entry for requests in a Roda application.
+    #
+    # Some interesting pieces of the log entry include which line matched the request,
+    # any time incurred by Sequel DB queries, and the remaining path that might have
+    # not been matched.
+    #
+    # It's mostly suitable in development but would likely be fine in production.
+    #
+    # = Usage
+    #
+    #   plugin :enhanced_logger
+    #
     module EnhancedLogger
-      def self.load_dependencies(app)
+      def self.load_dependencies(app) # :nodoc:
         app.plugin :hooks
         app.plugin :match_hook
       end
 
-      def self.configure(app)
+      def self.configure(app) # :nodoc:
         logger = TTY::Logger.new do |config|
           config.metadata = [:date, :time]
         end
@@ -68,6 +83,6 @@ class Roda
       end
     end
 
-    register_plugin :enhanced_logger, EnhancedLogger
+    register_plugin :enhanced_logger, EnhancedLogger # :nodoc:
   end
 end
