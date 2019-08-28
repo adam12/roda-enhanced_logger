@@ -5,6 +5,11 @@ PATH
       roda (>= 3.19.0)
       tty-logger (< 1.0)
 
+PATH
+  remote: /home/adam/code/github.com/jeremyevans/sequel
+  specs:
+    sequel (5.23.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -30,6 +35,7 @@ PLATFORMS
 DEPENDENCIES
   pry
   roda-enhanced_logger!
+  sequel!
 
 BUNDLED WITH
    1.17.2

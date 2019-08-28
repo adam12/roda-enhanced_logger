@@ -15,6 +15,10 @@ class Roda
 
         root = Pathname(app.opts[:root] || Dir.pwd)
 
+        if defined?(DB)
+          DB.extension :enhanced_logger
+        end
+
         app.match_hook do
           @_last_matched_caller = caller_locations.find { |location|
             location.path.start_with?(root.to_s)
@@ -43,15 +47,23 @@ class Roda
                    :info
                  end
 
-          logger.send(meth, "#{request.request_method} #{request.path}", {
+          data = {
             duration: (Process.clock_gettime(Process::CLOCK_MONOTONIC) - @_timer).round(4),
             status: status,
             verb: request.request_method,
             path: request.path,
             remaining_path: request.remaining_path,
             handler: handler,
-            params: request.params
-          })
+            params: request.params,
+          }
+
+          if (db = Thread.current[:accrued_database_time])
+            data[:db] = db.round(6)
+          end
+
+          logger.send(meth, "#{request.request_method} #{request.path}", data)
+
+          Thread.current[:accrued_database_time] = nil
         end
       end
     end
