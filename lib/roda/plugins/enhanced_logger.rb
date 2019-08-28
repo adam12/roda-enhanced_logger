@@ -48,6 +48,7 @@ class Roda
             status: status,
             verb: request.request_method,
             path: request.path,
+            remaining_path: request.remaining_path,
             handler: handler,
             params: request.params
           })
