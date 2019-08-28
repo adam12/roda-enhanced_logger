@@ -16,7 +16,9 @@ class Roda
         root = Pathname(app.opts[:root] || Dir.pwd)
 
         app.match_hook do
-          @_last_matched_caller = caller_locations(5..5).first
+          @_last_matched_caller = caller_locations.find { |location|
+            location.path.start_with?(root.to_s)
+          }
         end
 
         app.before do
