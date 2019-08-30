@@ -21,6 +21,16 @@ app = Class.new(Roda) do
     r.on "baz" do
       "baz"
     end
+
+    r.on "a" do
+      r.on "b" do
+        r.on "c" do
+          r.is "d" do
+            "a/b/c/d"
+          end
+        end
+      end
+    end
   end
 end
 
