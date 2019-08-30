@@ -40,7 +40,6 @@ class Roda # :nodoc:
           }
 
           @_matches << callee
-          @_last_matched_caller = callee
         end
 
         app.before do
@@ -51,10 +50,10 @@ class Roda # :nodoc:
         app.after do |res|
           status ,= res
 
-          if @_last_matched_caller
+          if (last_matched_caller = @_matches.last)
             handler = format("%s:%d",
-                             Pathname(@_last_matched_caller.path).relative_path_from(root),
-                             @_last_matched_caller.lineno)
+                             Pathname(last_matched_caller.path).relative_path_from(root),
+                             last_matched_caller.lineno)
           end
 
           meth = case status
