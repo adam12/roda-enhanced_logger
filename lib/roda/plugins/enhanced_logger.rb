@@ -23,7 +23,7 @@ class Roda # :nodoc:
         app.plugin :match_hook
       end
 
-      def self.configure(app, log_time: false) # :nodoc:
+      def self.configure(app, log_time: false, trace_missed: true) # :nodoc:
         logger = TTY::Logger.new do |config|
           config.metadata = [:date, :time] if log_time
         end
@@ -35,12 +35,16 @@ class Roda # :nodoc:
         end
 
         app.match_hook do
-          @_last_matched_caller = caller_locations.find { |location|
+          callee = caller_locations.find { |location|
             location.path.start_with?(root.to_s)
           }
+
+          @_matches << callee
+          @_last_matched_caller = callee
         end
 
         app.before do
+          @_matches = []
           @_timer = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         end
 
@@ -77,6 +81,15 @@ class Roda # :nodoc:
           end
 
           logger.send(meth, "#{request.request_method} #{request.path}", data)
+
+          if trace_missed && status == 404
+            @_matches.each do |match|
+              logger.send(meth, format("  %s (%s:%s)",
+                     File.readlines(match.path)[match.lineno - 1].strip.sub(" do", ""),
+                     Pathname(match.path).relative_path_from(root),
+                     match.lineno))
+            end
+          end
 
           Thread.current[:accrued_database_time] = nil
         end
