@@ -18,12 +18,12 @@ class Roda # :nodoc:
     #   plugin :enhanced_logger
     #
     module EnhancedLogger
-      def self.load_dependencies(app) # :nodoc:
+      def self.load_dependencies(app, _opts={}) # :nodoc:
         app.plugin :hooks
         app.plugin :match_hook
       end
 
-      def self.configure(app, log_time: false, trace_missed: true) # :nodoc:
+      def self.configure(app, log_time: false, trace_missed: true, trace_all: false) # :nodoc:
         logger = TTY::Logger.new do |config|
           config.metadata = [:date, :time] if log_time
         end
@@ -81,7 +81,7 @@ class Roda # :nodoc:
 
           logger.send(meth, "#{request.request_method} #{request.path}", data)
 
-          if trace_missed && status == 404
+          if (trace_missed && status == 404) || trace_all
             @_matches.each do |match|
               logger.send(meth, format("  %s (%s:%s)",
                      File.readlines(match.path)[match.lineno - 1].strip.sub(" do", ""),

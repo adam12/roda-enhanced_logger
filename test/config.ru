@@ -5,7 +5,7 @@ require "sequel"
 DB = Sequel.connect("mock://")
 
 app = Class.new(Roda) do
-  plugin :enhanced_logger
+  plugin :enhanced_logger, trace_all: true
 
   route do |r|
     r.is "foo", method: :get do
