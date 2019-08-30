@@ -23,9 +23,9 @@ class Roda # :nodoc:
         app.plugin :match_hook
       end
 
-      def self.configure(app) # :nodoc:
+      def self.configure(app, log_time: false) # :nodoc:
         logger = TTY::Logger.new do |config|
-          config.metadata = [:date, :time]
+          config.metadata = [:date, :time] if log_time
         end
 
         root = Pathname(app.opts[:root] || Dir.pwd)
