@@ -3,15 +3,18 @@
 require "sequel"
 
 module EnhancedLogger
-  UnsupportedSequelVersion = Class.new(StandardError)
-
-  if ::Sequel::VERSION_NUMBER < 50240
-    raise UnsupportedSequelVersion, "Sequel version must be 5.24 or greater"
-  end
-
   module Sequel
-    def skip_logging?
-      false
+    if ::Sequel::VERSION_NUMBER >= 50240
+      def skip_logging?
+        false
+      end
+    else
+      def self.extended(base)
+        return if base.loggers.any?
+
+        require "logger"
+        base.loggers = [Logger.new("/dev/null")]
+      end
     end
 
     def log_duration(duration, message)

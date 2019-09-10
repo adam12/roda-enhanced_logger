@@ -11,18 +11,6 @@ describe "EnhancedLogger" do
     end
   }
 
-  it "requires minimum Sequel version of 5.24" do
-    # Remove extension if already loaded
-    Sequel::Database::EXTENSIONS.delete(:enhanced_logger)
-    $LOADED_FEATURES.delete_if { |path| path.end_with?("extensions/enhanced_logger.rb") }
-
-    assert_raises("EnhancedLogger::SupportedSequelVersion") {
-      db = Sequel.mock
-      Sequel::VERSION_NUMBER = 50230
-      db.extension :enhanced_logger
-    }
-  end
-
   it "logs to stderr by default" do
     assert_output(nil, /./) do
       app = Class.new(Roda) {
