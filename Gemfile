@@ -8,3 +8,6 @@ gemspec
 
 gem "pry"
 gem "sequel", path: "/home/adam/code/github.com/jeremyevans/sequel"
+gem "minitest"
+gem "minitest-focus"
+gem "minitest-sprint"
