@@ -18,6 +18,7 @@ class Roda # :nodoc:
     #   plugin :enhanced_logger
     #
     module EnhancedLogger
+      # Exception raised when provided logger isn't of TTY::Logger
       InvalidLogger = Class.new(StandardError)
 
       module InstanceMethods
