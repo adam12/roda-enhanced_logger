@@ -18,6 +18,8 @@ class Roda # :nodoc:
     #   plugin :enhanced_logger
     #
     module EnhancedLogger
+      InvalidLogger = Class.new(StandardError)
+
       module InstanceMethods
         def _filter_params(params:, filtered_params:)
           params.each_with_object(params) { |(k, v), obj|
@@ -41,19 +43,27 @@ class Roda # :nodoc:
         %i[password _csrf]
       end
 
+      def self.default_logger(log_time: false)
+        TTY::Logger.new do |config|
+          config.metadata = [:date, :time] if log_time
+        end
+      end
+
       def self.configure(app,
+                         db: nil,
                          log_time: false,
+                         logger: default_logger(log_time: log_time),
                          trace_missed: true,
                          trace_all: false,
                          filtered_params: default_filtered_params) # :nodoc:
-        logger = TTY::Logger.new do |config|
-          config.metadata = [:date, :time] if log_time
-        end
+
+        raise InvalidLogger, "expected an instance of TTY::Logger" unless logger.kind_of?(TTY::Logger)
 
         root = Pathname(app.opts[:root] || Dir.pwd)
 
-        if defined?(DB)
-          DB.extension :enhanced_logger
+        db = db || (defined?(DB) && DB)
+        if db
+          db.extension :enhanced_logger
         end
 
         app.match_hook do
