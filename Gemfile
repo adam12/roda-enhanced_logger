@@ -8,6 +8,4 @@ gemspec
 
 gem "pry"
 gem "sequel", "~> 5.24.0"
-gem "minitest"
-gem "minitest-focus"
-gem "minitest-sprint"
+gem "rspec"
