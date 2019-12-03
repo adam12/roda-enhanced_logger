@@ -6,11 +6,7 @@ require "sequel"
 require "roda/plugins/enhanced_logger"
 
 RSpec.describe Roda::RodaPlugins::EnhancedLogger do
-  let(:null_logger) {
-    TTY::Logger.new do |config|
-      config.output = File.open("/dev/null", "a")
-    end
-  }
+  let(:null_logger) { TTY::Logger.new(output: File.open("/dev/null", "a")) }
 
   it "logs to stderr by default" do
     app = Class.new(Roda) {
@@ -27,7 +23,7 @@ RSpec.describe Roda::RodaPlugins::EnhancedLogger do
   end
 
   it "allows base logger to be provided" do
-    logger = spy("TTY::Logger")
+    logger = null_logger
 
     app = Class.new(Roda) {
       plugin :enhanced_logger, logger: logger
@@ -38,11 +34,9 @@ RSpec.describe Roda::RodaPlugins::EnhancedLogger do
     }
 
     Rack::MockRequest.new(app).get("/")
-
-    expect(logger).to have_received(:info)
   end
 
-  xit "expects base logger to XXX" do
+  it "expects base logger to be instance of TTY::Logger" do
     expect {
       Class.new(Roda) {
         plugin :enhanced_logger, logger: Object.new
@@ -53,7 +47,7 @@ RSpec.describe Roda::RodaPlugins::EnhancedLogger do
   describe "database logging" do
     it "allows custom database object" do
       db = Sequel.mock
-      logger = double.as_null_object
+      logger = null_logger
 
       app = Class.new(Roda) {
         plugin :enhanced_logger, db: db, logger: logger
@@ -74,7 +68,7 @@ RSpec.describe Roda::RodaPlugins::EnhancedLogger do
       accrued_time = nil
       db = Sequel.mock
 
-      logger = double
+      logger = TTY::Logger.new
       expect(logger).to receive(:info) { |_, opts={}|
         accrued_time = opts[:db] if opts.key?(:db)
       }
