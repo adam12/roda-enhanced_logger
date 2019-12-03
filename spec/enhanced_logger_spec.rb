@@ -1,10 +1,11 @@
-require "minitest/autorun"
-require "minitest/focus"
+require "bundler/setup"
 require "roda"
 require "tty-logger"
 require "sequel"
 
-describe "EnhancedLogger" do
+require "roda/plugins/enhanced_logger"
+
+RSpec.describe Roda::RodaPlugins::EnhancedLogger do
   let(:null_logger) {
     TTY::Logger.new do |config|
       config.output = File.open("/dev/null", "a")
@@ -12,22 +13,21 @@ describe "EnhancedLogger" do
   }
 
   it "logs to stderr by default" do
-    assert_output(nil, /./) do
-      app = Class.new(Roda) {
-        plugin :enhanced_logger
+    app = Class.new(Roda) {
+      plugin :enhanced_logger
 
-        route do |r|
-          "OK"
-        end
-      }
+      route do |r|
+        "OK"
+      end
+    }
 
+    expect {
       Rack::MockRequest.new(app).get("/")
-    end
+    }.to output(/./).to_stderr
   end
 
   it "allows base logger to be provided" do
-    logger = Minitest::Mock.new(null_logger)
-    logger.expect(:info, true, [String, Hash])
+    logger = spy("TTY::Logger")
 
     app = Class.new(Roda) {
       plugin :enhanced_logger, logger: logger
@@ -37,23 +37,23 @@ describe "EnhancedLogger" do
       end
     }
 
-    response = Rack::MockRequest.new(app).get("/")
+    Rack::MockRequest.new(app).get("/")
 
-    assert_mock logger
+    expect(logger).to have_received(:info)
   end
 
-  it "expects base logger to be instance of TTY::Logger" do
-    assert_raises Roda::RodaPlugins::EnhancedLogger::InvalidLogger do
+  xit "expects base logger to XXX" do
+    expect {
       Class.new(Roda) {
         plugin :enhanced_logger, logger: Object.new
       }
-    end
+    }.to raise_exception(Roda::RodaPlugins::EnhancedLogger::InvalidLogger)
   end
 
   describe "database logging" do
     it "allows custom database object" do
       db = Sequel.mock
-      logger = null_logger
+      logger = double.as_null_object
 
       app = Class.new(Roda) {
         plugin :enhanced_logger, db: db, logger: logger
@@ -66,16 +66,16 @@ describe "EnhancedLogger" do
 
       response = Rack::MockRequest.new(app).get("/")
 
-      assert_equal "OK", response.body
-      refute_empty db.sqls
+      expect(response.body).to eq("OK")
+      expect(db.sqls).to_not be_empty
     end
 
     it "records accrued database time" do
       accrued_time = nil
       db = Sequel.mock
 
-      logger = null_logger
-      logger.define_singleton_method(:info) { |_, opts={}|
+      logger = double
+      expect(logger).to receive(:info) { |_, opts={}|
         accrued_time = opts[:db] if opts.key?(:db)
       }
 
@@ -88,9 +88,9 @@ describe "EnhancedLogger" do
         end
       }
 
-      response = Rack::MockRequest.new(app).get("/")
+      _response = Rack::MockRequest.new(app).get("/")
 
-      refute_nil accrued_time
+      expect(accrued_time).to_not be_nil
     end
   end
 
@@ -112,7 +112,7 @@ describe "EnhancedLogger" do
 
       Rack::MockRequest.new(app).post("/", params: { password: "secret" })
 
-      assert_match /password=\<FILTERED\>/, log_output.string
+      expect(log_output.string).to match(/password=\<FILTERED\>/)
     end
 
     it "allows customization of filtered params list" do
@@ -133,7 +133,7 @@ describe "EnhancedLogger" do
 
       Rack::MockRequest.new(app).post("/", params: { first_name: "Adam" })
 
-      assert_match /first_name=\<FILTERED\>/, log_output.string
+      expect(log_output.string).to match(/first_name=\<FILTERED\>/)
     end
 
     it "deeply filters params list" do
@@ -145,12 +145,11 @@ describe "EnhancedLogger" do
 
       app = Class.new(Roda) {
         plugin :enhanced_logger, logger: logger
-
       }
 
       Rack::MockRequest.new(app).post("/", params: { user: { password: "secret" } })
 
-      assert_match /password=\<FILTERED\>/, log_output.string
+      expect(log_output.string).to match(/password=\<FILTERED\>/)
     end
   end
 end
