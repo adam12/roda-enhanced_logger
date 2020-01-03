@@ -18,52 +18,34 @@ class Roda # :nodoc:
     #   plugin :enhanced_logger
     #
     module EnhancedLogger
-      # Exception raised when provided logger isn't of TTY::Logger
-      InvalidLogger = Class.new(StandardError)
-
-      module InstanceMethods
-        def _filter_params(params:, filtered_params:)
-          params.each_with_object(params) { |(k, v), obj|
-            if v.is_a?(Hash)
-              return obj[k] = _filter_params(params: v, filtered_params: filtered_params)
-            end
-
-            if filtered_params.include?(k.to_sym)
-              obj[k] = "<FILTERED>"
-            end
-          }
-        end
-      end
+      DEFAULTS = {
+        db: nil,
+        log_time: false,
+        trace_missed: true,
+        trace_all: false,
+        filtered_params: %w[password _csrf],
+        handlers: [:console]
+      }.freeze
 
       def self.load_dependencies(app, _opts={}) # :nodoc:
         app.plugin :hooks
         app.plugin :match_hook
       end
 
-      def self.default_filtered_params
-        %i[password _csrf]
-      end
+      def self.configure(app, opts={})
+        options = DEFAULTS.merge(opts)
 
-      def self.default_logger(log_time: false, output: $stdout)
-        TTY::Logger.new do |config|
-          config.output = output
-          config.metadata = [:date, :time] if log_time
+        logger = TTY::Logger.new do |config|
+          config.handlers = options[:handlers]
+          config.output = options.fetch(:output) { $stdout }
+          config.metadata = [:data, :time] if options[:log_time]
+          config.filters.data = options[:filtered_params].map(&:to_s)
+          config.filters.mask = "<FILTERED>"
         end
-      end
-
-      def self.configure(app,
-                         db: nil,
-                         log_time: false,
-                         logger: default_logger(log_time: log_time),
-                         trace_missed: true,
-                         trace_all: false,
-                         filtered_params: default_filtered_params) # :nodoc:
-
-        raise InvalidLogger, "expected an instance of TTY::Logger" unless logger.kind_of?(TTY::Logger)
 
         root = Pathname(app.opts[:root] || Dir.pwd)
 
-        db = db || (defined?(DB) && DB)
+        db = options[:db] || (defined?(DB) && DB)
         if db
           db.extension :enhanced_logger
         end
@@ -106,16 +88,16 @@ class Roda # :nodoc:
             path: request.path,
             remaining_path: request.remaining_path,
             handler: handler,
-            params: _filter_params(params: request.params, filtered_params: filtered_params)
+            params: request.params
           }
 
           if (db = Thread.current[:accrued_database_time])
             data[:db] = db.round(6)
           end
 
-          logger.send(meth, "#{request.request_method} #{request.path}", data)
+          logger.public_send(meth, "#{request.request_method} #{request.path}", data)
 
-          if (trace_missed && status == 404) || trace_all
+          if (options[:trace_missed] && status == 404) || options[:trace_all]
             @_matches.each do |match|
               logger.send(meth, format("  %s (%s:%s)",
                      File.readlines(match.path)[match.lineno - 1].strip.sub(" do", ""),

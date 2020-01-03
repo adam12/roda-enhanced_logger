@@ -6,8 +6,6 @@ require "sequel"
 require "roda/plugins/enhanced_logger"
 
 RSpec.describe Roda::RodaPlugins::EnhancedLogger do
-  let(:null_logger) { TTY::Logger.new(output: File.open("/dev/null", "a")) }
-
   it "logs to stdout by default" do
     expect {
       app = Class.new(Roda) {
@@ -18,39 +16,17 @@ RSpec.describe Roda::RodaPlugins::EnhancedLogger do
         end
       }
 
-      Rack::MockRequest.new(app).get("/")
+      response = Rack::MockRequest.new(app).get("/")
+      expect(response.body).to eq("OK")
     }.to output.to_stdout
-  end
-
-  it "allows base logger to be provided" do
-    logger = null_logger
-
-    app = Class.new(Roda) {
-      plugin :enhanced_logger, logger: logger
-
-      route do |r|
-        "OK"
-      end
-    }
-
-    Rack::MockRequest.new(app).get("/")
-  end
-
-  it "expects base logger to be instance of TTY::Logger" do
-    expect {
-      Class.new(Roda) {
-        plugin :enhanced_logger, logger: Object.new
-      }
-    }.to raise_exception(Roda::RodaPlugins::EnhancedLogger::InvalidLogger)
   end
 
   describe "database logging" do
     it "allows custom database object" do
       db = Sequel.mock
-      logger = null_logger
 
       app = Class.new(Roda) {
-        plugin :enhanced_logger, db: db, logger: logger
+        plugin :enhanced_logger, db: db, output: File.new(File::NULL, "w")
 
         route do |r|
           db[:foos].to_a
@@ -65,16 +41,11 @@ RSpec.describe Roda::RodaPlugins::EnhancedLogger do
     end
 
     it "records accrued database time" do
-      accrued_time = nil
+      output = StringIO.new
       db = Sequel.mock
 
-      logger = TTY::Logger.new
-      expect(logger).to receive(:info) { |_, opts={}|
-        accrued_time = opts[:db] if opts.key?(:db)
-      }
-
       app = Class.new(Roda) {
-        plugin :enhanced_logger, db: db, logger: logger
+        plugin :enhanced_logger, db: db, handlers: [[:stream, output: output]]
 
         route do |r|
           db[:foos].to_a
@@ -82,22 +53,17 @@ RSpec.describe Roda::RodaPlugins::EnhancedLogger do
         end
       }
 
-      _response = Rack::MockRequest.new(app).get("/")
+      Rack::MockRequest.new(app).get("/")
 
-      expect(accrued_time).to_not be_nil
+      expect(output.string).to match(/db=\d+/)
     end
   end
 
   describe "filtered params" do
     it "has a default filtered params list" do
-      log_output = StringIO.new
-
-      logger = TTY::Logger.new(output: log_output) do |config|
-        config.handlers = [[:stream, formatter: :text]]
-      end
-
+      output = StringIO.new
       app = Class.new(Roda) {
-        plugin :enhanced_logger, logger: logger
+        plugin :enhanced_logger, handlers: [[:stream, output: output]]
 
         route do |r|
           "OK"
@@ -106,19 +72,15 @@ RSpec.describe Roda::RodaPlugins::EnhancedLogger do
 
       Rack::MockRequest.new(app).post("/", params: { password: "secret" })
 
-      expect(log_output.string).to match(/password=\<FILTERED\>/)
+      expect(output.string).to match(/password=\<FILTERED\>/)
     end
 
     it "allows customization of filtered params list" do
-      log_output = StringIO.new
-
-      logger = TTY::Logger.new(output: log_output) do |config|
-        config.handlers = [[:stream, formatter: :text]]
-      end
+      output = StringIO.new
 
       app = Class.new(Roda) {
         plugin :enhanced_logger, filtered_params: %i[first_name],
-                                 logger: logger
+                                 handlers: [[:stream, output: output]]
 
         route do |r|
           "OK"
@@ -127,23 +89,22 @@ RSpec.describe Roda::RodaPlugins::EnhancedLogger do
 
       Rack::MockRequest.new(app).post("/", params: { first_name: "Adam" })
 
-      expect(log_output.string).to match(/first_name=\<FILTERED\>/)
+      expect(output.string).to match(/first_name=\<FILTERED\>/)
     end
 
     it "deeply filters params list" do
-      log_output = StringIO.new
-
-      logger = TTY::Logger.new(output: log_output) do |config|
-        config.handlers = [[:stream, formatter: :text]]
-      end
-
+      output = StringIO.new
       app = Class.new(Roda) {
-        plugin :enhanced_logger, logger: logger
+        plugin :enhanced_logger, handlers: [[:stream, output: output]]
+
+        route do |r|
+          "OK"
+        end
       }
 
       Rack::MockRequest.new(app).post("/", params: { user: { password: "secret" } })
 
-      expect(log_output.string).to match(/password=\<FILTERED\>/)
+      expect(output.string).to match(/\password=<FILTERED\>/)
     end
   end
 end
