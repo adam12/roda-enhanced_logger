@@ -8,18 +8,18 @@ require "roda/plugins/enhanced_logger"
 RSpec.describe Roda::RodaPlugins::EnhancedLogger do
   let(:null_logger) { TTY::Logger.new(output: File.open("/dev/null", "a")) }
 
-  it "logs to stderr by default" do
-    app = Class.new(Roda) {
-      plugin :enhanced_logger
-
-      route do |r|
-        "OK"
-      end
-    }
-
+  it "logs to stdout by default" do
     expect {
+      app = Class.new(Roda) {
+        plugin :enhanced_logger
+
+        route do |r|
+          "OK"
+        end
+      }
+
       Rack::MockRequest.new(app).get("/")
-    }.to output(/./).to_stderr
+    }.to output.to_stdout
   end
 
   it "allows base logger to be provided" do

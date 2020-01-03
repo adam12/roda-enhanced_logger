@@ -44,8 +44,9 @@ class Roda # :nodoc:
         %i[password _csrf]
       end
 
-      def self.default_logger(log_time: false)
+      def self.default_logger(log_time: false, output: $stdout)
         TTY::Logger.new do |config|
+          config.output = output
           config.metadata = [:date, :time] if log_time
         end
       end
