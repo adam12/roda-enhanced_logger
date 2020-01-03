@@ -9,3 +9,4 @@ gemspec
 gem "pry"
 gem "sequel", "~> 5.24.0"
 gem "rspec"
+gem "warning"
