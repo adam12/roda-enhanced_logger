@@ -3,7 +3,7 @@ PATH
   specs:
     roda-enhanced_logger (0.1.0)
       roda (>= 3.19.0)
-      tty-logger (< 1.0)
+      tty-logger (>= 0.3, < 1.0)
 
 GEM
   remote: https://rubygems.org/
@@ -18,8 +18,8 @@ GEM
     pry (0.12.2)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
-    rack (2.0.7)
-    roda (3.23.0)
+    rack (2.0.8)
+    roda (3.27.0)
       rack
     rspec (3.9.0)
       rspec-core (~> 3.9.0)
@@ -36,7 +36,7 @@ GEM
     rspec-support (3.9.0)
     sequel (5.24.0)
     tty-color (0.5.0)
-    tty-logger (0.1.0)
+    tty-logger (0.3.0)
       pastel (~> 0.7.0)
 
 PLATFORMS
