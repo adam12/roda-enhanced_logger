@@ -95,6 +95,10 @@ class Roda # :nodoc:
             data[:db] = db.round(6)
           end
 
+          if (query_count = Thread.current[:database_query_count])
+            data[:db_queries] = query_count
+          end
+
           logger.public_send(meth, "#{request.request_method} #{request.path}", data)
 
           if (options[:trace_missed] && status == 404) || options[:trace_all]
@@ -107,6 +111,7 @@ class Roda # :nodoc:
           end
 
           Thread.current[:accrued_database_time] = nil
+          Thread.current[:database_query_count] = nil
         end
       end
     end

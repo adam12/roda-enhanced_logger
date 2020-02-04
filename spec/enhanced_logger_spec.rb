@@ -57,6 +57,24 @@ RSpec.describe Roda::RodaPlugins::EnhancedLogger do
 
       expect(output.string).to match(/db=\d+/)
     end
+
+    it "records number of queries" do
+      output = StringIO.new
+      db = Sequel.mock
+
+      app = Class.new(Roda) {
+        plugin :enhanced_logger, db: db, handlers: [[:stream, output: output]]
+
+        route do |r|
+          db[:foos].to_a
+          "OK"
+        end
+      }
+
+      Rack::MockRequest.new(app).get("/")
+
+      expect(output.string).to match(/db_queries=1/)
+    end
   end
 
   describe "filtered params" do

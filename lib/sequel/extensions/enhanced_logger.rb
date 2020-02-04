@@ -21,6 +21,9 @@ module EnhancedLogger
       Thread.current[:accrued_database_time] ||= 0
       Thread.current[:accrued_database_time] += duration
 
+      Thread.current[:database_query_count] ||= 0
+      Thread.current[:database_query_count] += 1
+
       super
     end
   end
