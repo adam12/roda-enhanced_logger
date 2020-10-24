@@ -122,7 +122,7 @@ RSpec.describe Roda::RodaPlugins::EnhancedLogger do
 
       Rack::MockRequest.new(app).post("/", params: { user: { password: "secret" } })
 
-      expect(output.string).to match(/\password=<FILTERED\>/)
+      expect(output.string).to match(/password=<FILTERED>/)
     end
   end
 end
