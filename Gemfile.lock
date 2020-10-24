@@ -49,6 +49,3 @@ DEPENDENCIES
   rspec
   sequel (~> 5.24.0)
   warning
-
-BUNDLED WITH
-   1.17.3
