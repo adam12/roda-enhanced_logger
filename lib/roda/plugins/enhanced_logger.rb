@@ -18,6 +18,28 @@ class Roda # :nodoc:
     #   plugin :enhanced_logger
     #
     module EnhancedLogger
+      module InstanceMethods
+        def _set_enhanced_logger_id(id)
+          env["enhanced_logger_id"] ||= id
+        end
+
+        def _enhanced_logger_id
+          env["enhanced_logger_id"]
+        end
+
+        def _enhanced_log_entries
+          @_enhanced_log_entries ||= []
+        end
+
+        def _drain_enhanced_log_entries(logger)
+          return unless _enhanced_logger_id == object_id
+
+          _enhanced_log_entries.each do |args|
+            logger.public_send(*args)
+          end
+        end
+      end
+
       DEFAULTS = {
         db: nil,
         log_time: false,
@@ -59,6 +81,7 @@ class Roda # :nodoc:
         end
 
         app.before do
+          _set_enhanced_logger_id(object_id)
           @_matches = []
           @_timer = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         end
@@ -99,16 +122,18 @@ class Roda # :nodoc:
             data[:db_queries] = query_count
           end
 
-          logger.public_send(meth, "#{request.request_method} #{request.path}", data)
+          _enhanced_log_entries.push [meth, "#{request.request_method} #{request.path}", data]
 
           if (options[:trace_missed] && status == 404) || options[:trace_all]
             @_matches.each do |match|
-              logger.send(meth, format("  %s (%s:%s)",
+              _enhanced_log_entries.push [meth, format("  %s (%s:%s)",
                      File.readlines(match.path)[match.lineno - 1].strip.sub(" do", ""),
                      Pathname(match.path).relative_path_from(root),
-                     match.lineno))
+                     match.lineno)]
             end
           end
+
+          _drain_enhanced_log_entries(logger)
 
           Thread.current[:accrued_database_time] = nil
           Thread.current[:database_query_count] = nil

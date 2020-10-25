@@ -125,4 +125,32 @@ RSpec.describe Roda::RodaPlugins::EnhancedLogger do
       expect(output.string).to match(/password=<FILTERED>/)
     end
   end
+
+  describe "nested applications" do
+    it "logs from the top application" do
+      nested_output = StringIO.new
+
+      nested = Class.new(Roda) {
+        plugin :enhanced_logger, handlers: [[:stream, output: nested_output]]
+
+        route do |r|
+          "nested"
+        end
+      }
+
+      output = StringIO.new
+      router = Class.new(Roda) {
+        plugin :enhanced_logger, handlers: [[:stream, output: output]]
+
+        route do |r|
+          r.run nested
+        end
+      }
+
+      response = Rack::MockRequest.new(router).get("/")
+      expect(response.body).to eq("nested")
+      expect(nested_output.string).to be_empty
+      expect(output.string).to_not be_empty
+    end
+  end
 end
