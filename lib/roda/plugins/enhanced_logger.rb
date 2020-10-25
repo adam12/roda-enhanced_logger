@@ -29,28 +29,26 @@ class Roda # :nodoc:
         handlers: [:console]
       }.freeze
 
-      def self.load_dependencies(app, _opts={}) # :nodoc:
+      def self.load_dependencies(app, _opts = {}) # :nodoc:
         app.plugin :hooks
         app.plugin :match_hook
       end
 
-      def self.configure(app, opts={})
+      def self.configure(app, opts = {})
         options = DEFAULTS.merge(opts)
 
-        logger = TTY::Logger.new do |config|
+        logger = TTY::Logger.new { |config|
           config.handlers = options[:handlers]
           config.output = options.fetch(:output) { $stdout }
           config.metadata = [:data, :time] if options[:log_time]
           config.filters.data = options[:filtered_params].map(&:to_s)
           config.filters.mask = "<FILTERED>"
-        end
+        }
 
         root = Pathname(app.opts[:root] || Dir.pwd)
 
         db = options[:db] || (defined?(DB) && DB)
-        if db
-          db.extension :enhanced_logger
-        end
+        db&.extension :enhanced_logger
 
         app.match_hook do
           callee = caller_locations.find { |location|

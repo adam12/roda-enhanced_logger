@@ -36,18 +36,19 @@ class Roda
       def add(status, request, trace = false)
         if (last_matched_caller = matches.last)
           handler = format("%s:%d",
-                            Pathname(last_matched_caller.path).relative_path_from(root),
-                            last_matched_caller.lineno)
+            Pathname(last_matched_caller.path).relative_path_from(root),
+            last_matched_caller.lineno)
         end
 
-        meth = case status
-                when 400..499
-                  :warn
-                when 500..599
-                  :error
-                else
-                  :info
-                end
+        meth =
+          case status
+          when 400..499
+            :warn
+          when 500..599
+            :error
+          else
+            :info
+          end
 
         data = {
           duration: (Process.clock_gettime(Process::CLOCK_MONOTONIC) - timer).round(4),
@@ -70,9 +71,9 @@ class Roda
         if trace
           matches.each do |match|
             add_log_entry([meth, format("  %s (%s:%s)",
-                    File.readlines(match.path)[match.lineno - 1].strip.sub(" do", ""),
-                    Pathname(match.path).relative_path_from(root),
-                    match.lineno)])
+              File.readlines(match.path)[match.lineno - 1].strip.sub(" do", ""),
+              Pathname(match.path).relative_path_from(root),
+              match.lineno)])
           end
         end
 
@@ -85,7 +86,7 @@ class Roda
 
       def drain
         return unless primary?
-        
+
         log_entries.each do |args|
           logger.public_send(*args)
         end

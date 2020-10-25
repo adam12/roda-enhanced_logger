@@ -4,7 +4,7 @@ Gem::Specification.new do |spec|
   spec.authors = ["Adam Daniels"]
   spec.email = "adam@mediadrive.ca"
 
-  spec.summary = %q(An enhanced logger for Roda applications)
+  spec.summary = "An enhanced logger for Roda applications"
   spec.homepage = "https://github.com/adam12/roda-enhanced_logger"
   spec.license = "MIT"
 

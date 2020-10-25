@@ -88,9 +88,9 @@ RSpec.describe Roda::RodaPlugins::EnhancedLogger do
         end
       }
 
-      Rack::MockRequest.new(app).post("/", params: { password: "secret" })
+      Rack::MockRequest.new(app).post("/", params: {password: "secret"})
 
-      expect(output.string).to match(/password=\<FILTERED\>/)
+      expect(output.string).to match(/password=<FILTERED>/)
     end
 
     it "allows customization of filtered params list" do
@@ -105,9 +105,9 @@ RSpec.describe Roda::RodaPlugins::EnhancedLogger do
         end
       }
 
-      Rack::MockRequest.new(app).post("/", params: { first_name: "Adam" })
+      Rack::MockRequest.new(app).post("/", params: {first_name: "Adam"})
 
-      expect(output.string).to match(/first_name=\<FILTERED\>/)
+      expect(output.string).to match(/first_name=<FILTERED>/)
     end
 
     it "deeply filters params list" do
@@ -120,7 +120,7 @@ RSpec.describe Roda::RodaPlugins::EnhancedLogger do
         end
       }
 
-      Rack::MockRequest.new(app).post("/", params: { user: { password: "secret" } })
+      Rack::MockRequest.new(app).post("/", params: {user: {password: "secret"}})
 
       expect(output.string).to match(/password=<FILTERED>/)
     end
