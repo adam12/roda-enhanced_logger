@@ -17,12 +17,9 @@ module EnhancedLogger
       end
     end
 
-    def log_duration(duration, message)
-      Thread.current[:accrued_database_time] ||= 0
-      Thread.current[:accrued_database_time] += duration
-
-      Thread.current[:database_query_count] ||= 0
-      Thread.current[:database_query_count] += 1
+    def log_duration(duration, _message)
+      Roda::EnhancedLogger::Current.increment_accrued_database_time(duration)
+      Roda::EnhancedLogger::Current.increment_database_query_count
 
       super
     end

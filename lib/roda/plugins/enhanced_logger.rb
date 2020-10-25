@@ -1,6 +1,8 @@
 # frozen-string-literal: true
 
 require "tty-logger"
+require "roda/enhanced_logger/current"
+require "roda/enhanced_logger/instance"
 
 class Roda # :nodoc:
   module RodaPlugins # :nodoc:
@@ -18,28 +20,6 @@ class Roda # :nodoc:
     #   plugin :enhanced_logger
     #
     module EnhancedLogger
-      module InstanceMethods
-        def _set_enhanced_logger_id(id)
-          env["enhanced_logger_id"] ||= id
-        end
-
-        def _enhanced_logger_id
-          env["enhanced_logger_id"]
-        end
-
-        def _enhanced_log_entries
-          @_enhanced_log_entries ||= []
-        end
-
-        def _drain_enhanced_log_entries(logger)
-          return unless _enhanced_logger_id == object_id
-
-          _enhanced_log_entries.each do |args|
-            logger.public_send(*args)
-          end
-        end
-      end
-
       DEFAULTS = {
         db: nil,
         log_time: false,
@@ -77,66 +57,22 @@ class Roda # :nodoc:
             location.path.start_with?(root.to_s)
           }
 
-          @_matches << callee
+          @_enhanced_logger_instance.add_match(callee)
         end
 
         app.before do
-          _set_enhanced_logger_id(object_id)
-          @_matches = []
-          @_timer = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+          @_enhanced_logger_instance = Roda::EnhancedLogger::Instance.new(logger, env, object_id, root)
         end
 
-        app.after do |res|
-          status ,= res
+        app.after do |status, _|
+          @_enhanced_logger_instance.add(
+            status,
+            request,
+            (options[:trace_missed] && status == 404) || options[:trace_all]
+          )
 
-          if (last_matched_caller = @_matches.last)
-            handler = format("%s:%d",
-                             Pathname(last_matched_caller.path).relative_path_from(root),
-                             last_matched_caller.lineno)
-          end
-
-          meth = case status
-                 when 400..499
-                   :warn
-                 when 500..599
-                   :error
-                 else
-                   :info
-                 end
-
-          data = {
-            duration: (Process.clock_gettime(Process::CLOCK_MONOTONIC) - @_timer).round(4),
-            status: status,
-            verb: request.request_method,
-            path: request.path,
-            remaining_path: request.remaining_path,
-            handler: handler,
-            params: request.params
-          }
-
-          if (db = Thread.current[:accrued_database_time])
-            data[:db] = db.round(6)
-          end
-
-          if (query_count = Thread.current[:database_query_count])
-            data[:db_queries] = query_count
-          end
-
-          _enhanced_log_entries.push [meth, "#{request.request_method} #{request.path}", data]
-
-          if (options[:trace_missed] && status == 404) || options[:trace_all]
-            @_matches.each do |match|
-              _enhanced_log_entries.push [meth, format("  %s (%s:%s)",
-                     File.readlines(match.path)[match.lineno - 1].strip.sub(" do", ""),
-                     Pathname(match.path).relative_path_from(root),
-                     match.lineno)]
-            end
-          end
-
-          _drain_enhanced_log_entries(logger)
-
-          Thread.current[:accrued_database_time] = nil
-          Thread.current[:database_query_count] = nil
+          @_enhanced_logger_instance.drain
+          @_enhanced_logger_instance.reset
         end
       end
     end
