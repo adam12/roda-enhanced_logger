@@ -1,5 +1,16 @@
 # Roda Enhanced Logger
 
+A powerful logger for Roda with a few tricks up it's sleeve.
+
+- Coloured output per level
+- Structured output of query params
+- Tracking of database query time and count
+- Tracking of blocks which handle path segment
+- Tracing missed requests
+- Tracing all requests
+
+![Enhanced Logger Output](roda-enhanced_logger.png)
+
 ## Installation
 
 Add this line to your application's Gemfile:
