@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name = "roda-enhanced_logger"
-  spec.version = "0.1.0"
+  spec.version = "0.3.0"
   spec.authors = ["Adam Daniels"]
   spec.email = "adam@mediadrive.ca"
 
