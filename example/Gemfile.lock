@@ -1,0 +1,30 @@
+PATH
+  remote: ..
+  specs:
+    roda-enhanced_logger (0.1.0)
+      roda (>= 3.19.0)
+      tty-logger (>= 0.3, < 1.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    pastel (0.8.0)
+      tty-color (~> 0.5)
+    rack (2.2.3)
+    roda (3.38.0)
+      rack
+    sequel (5.38.0)
+    tty-color (0.6.0)
+    tty-logger (0.5.0)
+      pastel (~> 0.8)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  roda
+  roda-enhanced_logger!
+  sequel
+
+BUNDLED WITH
+   2.1.4
