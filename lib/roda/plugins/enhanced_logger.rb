@@ -30,7 +30,7 @@ class Roda
         log_time: false,
         trace_missed: true,
         trace_all: false,
-        filtered_params: %w[password _csrf],
+        filtered_params: %w[password password_confirmation _csrf],
         handlers: [:console]
       }.freeze
 
