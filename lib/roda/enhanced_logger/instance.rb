@@ -10,13 +10,15 @@ class Roda
       attr_reader :logger
       attr_reader :matches
       attr_reader :timer
+      attr_reader :filter
 
-      def initialize(logger, env, instance_id, root)
+      def initialize(logger, env, instance_id, root, filter)
         @logger = logger
         @root = root
         @log_entries = []
         @matches = []
         @timer = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        @filter = filter || proc { false }
         if env["enhanced_logger_id"].nil?
           @primary = true
           env["enhanced_logger_id"] = instance_id
@@ -76,6 +78,8 @@ class Roda
               match.lineno)])
           end
         end
+
+        return if filter.call(request.path)
 
         add_log_entry([meth, "#{request.request_method} #{request.path}", data])
       end

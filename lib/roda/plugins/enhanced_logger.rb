@@ -59,7 +59,7 @@ class Roda # :nodoc:
         end
 
         app.before do
-          @_enhanced_logger_instance = Roda::EnhancedLogger::Instance.new(logger, env, object_id, root)
+          @_enhanced_logger_instance = Roda::EnhancedLogger::Instance.new(logger, env, object_id, root, options[:filter])
         end
 
         app.after do |status, _|

@@ -6,6 +6,27 @@ require "sequel"
 require "roda/plugins/enhanced_logger"
 
 RSpec.describe Roda::RodaPlugins::EnhancedLogger do
+  it "filters log entries" do
+    expect {
+      app = Class.new(Roda) {
+        plugin :enhanced_logger, filter: ->(path) {
+          path.match?(/assets/)
+        }
+
+        route do |r|
+          r.is "assets" do
+            "assets"
+          end
+
+          "OK"
+        end
+      }
+
+      response = Rack::MockRequest.new(app).get("/assets")
+      expect(response.body).to eq("assets")
+    }.to_not output.to_stdout
+  end
+
   it "logs to stdout by default" do
     expect {
       app = Class.new(Roda) {
