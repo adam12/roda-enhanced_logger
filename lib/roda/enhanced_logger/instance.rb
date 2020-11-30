@@ -4,12 +4,25 @@ require "roda"
 
 class Roda
   module EnhancedLogger
+    ##
+    # Logger instance for this application
     class Instance
+      # Application root
       attr_reader :root
+
+      # Log entries generated during request
       attr_reader :log_entries
+
+      # Logger instance
       attr_reader :logger
+
+      # Route matches during request
       attr_reader :matches
+
       attr_reader :timer
+      private :timer
+
+      # Callable object to filter log entries
       attr_reader :filter
 
       def initialize(logger, env, instance_id, root, filter)
@@ -27,14 +40,18 @@ class Roda
         end
       end
 
+      # Add a matched route handler
       def add_match(caller)
         @matches << caller
       end
 
-      def add_log_entry(record)
-        @log_entries << record
-      end
-
+      # Add log entry for request
+      # @param status [Integer]
+      #   status code for the response
+      # @param request [Roda::RodaRequest]
+      #   request object
+      # @param trace [Boolean]
+      #   tracing was enabled
       def add(status, request, trace = false)
         if (last_matched_caller = matches.last)
           handler = format("%s:%d",
@@ -84,20 +101,34 @@ class Roda
         add_log_entry([meth, "#{request.request_method} #{request.path}", data])
       end
 
+      # This instance is the primary logger
+      # @return [Boolean]
       def primary?
         @primary
       end
 
+      # Drain the log entry queue, writing each to the logger at their respective level
+      # @return [Boolean]
       def drain
         return unless primary?
 
         log_entries.each do |args|
           logger.public_send(*args)
         end
+
+        true
       end
 
+      # Reset the counters for this thread
+      # @return [Boolean]
       def reset
         Roda::EnhancedLogger::Current.reset
+      end
+
+      private
+
+      def add_log_entry(record)
+        @log_entries << record
       end
     end
   end

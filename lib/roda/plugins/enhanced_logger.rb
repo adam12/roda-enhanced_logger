@@ -4,9 +4,9 @@ require "tty-logger"
 require "roda/enhanced_logger/current"
 require "roda/enhanced_logger/instance"
 
-class Roda # :nodoc:
-  module RodaPlugins # :nodoc:
-    # The enhanced_logger plugin provides a coloured, single line log
+class Roda
+  module RodaPlugins
+    # The +enhanced_logger+ plugin provides a coloured, single line log
     # entry for requests in a Roda application.
     #
     # Some interesting pieces of the log entry include which line matched the request,
@@ -15,9 +15,14 @@ class Roda # :nodoc:
     #
     # It's mostly suitable in development but would likely be fine in production.
     #
-    # = Usage
-    #
+    # @example Basic configuration
     #   plugin :enhanced_logger
+    #
+    # @example Filter requests to assets
+    #   plugin :enahanced_logger, filter: ->(path) { path.start_with?("/assets") }
+    #
+    # @example Filter parameters
+    #   plugin :enhanced_logger, filtered_params: %i[api_key]
     #
     module EnhancedLogger
       DEFAULTS = {
@@ -29,7 +34,7 @@ class Roda # :nodoc:
         handlers: [:console]
       }.freeze
 
-      def self.load_dependencies(app, _opts = {}) # :nodoc:
+      def self.load_dependencies(app, _opts = {})
         app.plugin :hooks
         app.plugin :match_hook
       end
@@ -75,6 +80,6 @@ class Roda # :nodoc:
       end
     end
 
-    register_plugin :enhanced_logger, EnhancedLogger # :nodoc:
+    register_plugin :enhanced_logger, EnhancedLogger
   end
 end
