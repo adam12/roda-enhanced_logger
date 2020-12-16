@@ -1,5 +1,6 @@
 # frozen-string-literal: true
 
+require "pathname"
 require "tty-logger"
 require "roda/enhanced_logger/current"
 require "roda/enhanced_logger/instance"

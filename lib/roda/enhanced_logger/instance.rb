@@ -1,5 +1,6 @@
 # frozen-string-literal: true
 
+require "pathname"
 require "roda"
 
 class Roda
