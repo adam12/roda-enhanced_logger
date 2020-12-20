@@ -9,6 +9,6 @@ gemspec
 gem "lefthook"
 gem "pry"
 gem "rspec"
-gem "sequel", "~> 5.24.0"
+gem "sequel", "~> 5.24"
 gem "standard"
 gem "warning"
