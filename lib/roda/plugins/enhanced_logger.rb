@@ -46,7 +46,7 @@ class Roda
         logger = TTY::Logger.new { |config|
           config.handlers = options[:handlers]
           config.output = options.fetch(:output) { $stdout }
-          config.metadata = [:data, :time] if options[:log_time]
+          config.metadata.push(:time, :date) if options[:log_time]
           config.filters.data = options[:filtered_params].map(&:to_s)
           config.filters.mask = "<FILTERED>"
         }

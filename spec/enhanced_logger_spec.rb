@@ -27,6 +27,26 @@ RSpec.describe Roda::RodaPlugins::EnhancedLogger do
     }.to_not output.to_stdout
   end
 
+  it "can log time" do
+    output = StringIO.new
+
+    app = Class.new(Roda) {
+      plugin :enhanced_logger, log_time: true, output: output
+
+      route do |r|
+        "OK"
+      end
+    }
+
+    time_now = Time.new(2022, 6, 4, 8, 30)
+    allow(Time).to receive(:now).and_return(time_now)
+    response = Rack::MockRequest.new(app).get("/")
+    expect(response.body).to eq("OK")
+
+    expect(output.string).to match "08:30:00.000"
+    expect(output.string).to match "2022-06-04"
+  end
+
   it "logs to stdout by default" do
     expect {
       app = Class.new(Roda) {
