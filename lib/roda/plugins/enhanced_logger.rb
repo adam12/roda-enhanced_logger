@@ -25,6 +25,8 @@ class Roda
     # @example Filter parameters
     #   plugin :enhanced_logger, filtered_params: %i[api_key]
     #
+    # @example Log date and time of request
+    #   plugin :enhanced_logger, log_time: true
     module EnhancedLogger
       DEFAULTS = {
         db: nil,
