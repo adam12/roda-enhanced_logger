@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    roda-enhanced_logger (0.4.0)
+    roda-enhanced_logger (0.5.0)
       roda (>= 3.19.0)
       tty-logger (>= 0.3, < 1.0)
 
@@ -10,10 +10,10 @@ GEM
   specs:
     pastel (0.8.0)
       tty-color (~> 0.5)
-    rack (2.2.3)
-    roda (3.38.0)
+    rack (2.2.4)
+    roda (3.57.0)
       rack
-    sequel (5.38.0)
+    sequel (5.58.0)
     tty-color (0.6.0)
     tty-logger (0.6.0)
       pastel (~> 0.8)
