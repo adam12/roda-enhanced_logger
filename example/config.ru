@@ -8,7 +8,8 @@ DB = Sequel.mock
 class App < Roda
   plugin :enhanced_logger,
     filter: ->(path) { path.start_with?("/favicon.ico") },
-    trace_missed: true
+    trace_missed: true,
+    log_time: true
 
   route do |r|
     r.on "foo" do
