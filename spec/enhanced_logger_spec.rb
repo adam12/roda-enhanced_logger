@@ -141,7 +141,7 @@ RSpec.describe Roda::RodaPlugins::EnhancedLogger do
 
       app = Class.new(Roda) {
         plugin :enhanced_logger, filtered_params: %i[first_name],
-                                 handlers: [[:stream, output: output]]
+          handlers: [[:stream, output: output]]
 
         route do |r|
           "OK"
