@@ -2,6 +2,8 @@ require "bundler/setup"
 require "roda"
 require "tty-logger"
 require "sequel"
+require "rack/mock_request"
+require "rack/mock_response"
 
 require "roda/plugins/enhanced_logger"
 
