@@ -2,6 +2,8 @@ require "bundler/setup"
 require "roda"
 require "tty-logger"
 require "sequel"
+require "rack/mock_request"
+require "rack/mock_response"
 
 require "roda/plugins/enhanced_logger"
 
@@ -139,7 +141,7 @@ RSpec.describe Roda::RodaPlugins::EnhancedLogger do
 
       app = Class.new(Roda) {
         plugin :enhanced_logger, filtered_params: %i[first_name],
-                                 handlers: [[:stream, output: output]]
+          handlers: [[:stream, output: output]]
 
         route do |r|
           "OK"
