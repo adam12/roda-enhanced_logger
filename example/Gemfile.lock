@@ -10,7 +10,7 @@ GEM
   specs:
     pastel (0.8.0)
       tty-color (~> 0.5)
-    rack (2.2.4)
+    rack (3.0.4.2)
     roda (3.57.0)
       rack
     sequel (5.58.0)
