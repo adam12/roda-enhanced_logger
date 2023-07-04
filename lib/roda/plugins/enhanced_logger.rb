@@ -49,7 +49,7 @@ class Roda
           config.handlers = options[:handlers]
           config.output = options.fetch(:output) { $stdout }
           config.metadata.push(:time, :date) if options[:log_time]
-          config.filters.data = options[:filtered_params].map(&:to_s)
+          config.filters.data = options[:filtered_params]
           config.filters.mask = "<FILTERED>"
         }
 
