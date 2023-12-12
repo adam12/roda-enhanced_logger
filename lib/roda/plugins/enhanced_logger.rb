@@ -70,7 +70,8 @@ class Roda
           @_enhanced_logger_instance = Roda::EnhancedLogger::Instance.new(logger, env, object_id, root, options[:filter])
         end
 
-        app.after do |status, _|
+        app.after do |res|
+          status, _ = res
           @_enhanced_logger_instance.add(
             status,
             request,
