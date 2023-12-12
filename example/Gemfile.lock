@@ -11,6 +11,9 @@ GEM
     pastel (0.8.0)
       tty-color (~> 0.5)
     rack (3.0.7)
+    rackup (2.0.0)
+      rack (>= 3)
+      webrick
     roda (3.57.0)
       rack
     sequel (5.58.0)
@@ -23,6 +26,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  rackup (~> 2.0)
   roda
   roda-enhanced_logger!
   sequel
