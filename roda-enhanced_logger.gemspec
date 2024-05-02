@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.files = ["README.md"] + Dir["lib/**/*.rb"]
 
-  spec.add_dependency "roda", ">= 3.19.0"
+  spec.add_dependency "roda", "~> 3.19"
   spec.add_dependency "tty-logger", ">= 0.3", "< 1.0"
 
   spec.required_ruby_version = ">= 2.1"
