@@ -8,6 +8,7 @@ gemspec
 
 gem "lefthook"
 gem "pry"
+gem "rake"
 gem "rspec"
 gem "sequel", "~> 5.24"
 gem "standard"
