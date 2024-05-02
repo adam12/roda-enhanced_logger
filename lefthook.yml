@@ -1,5 +1,0 @@
-pre-commit:
-  commands:
-    standardrb:
-      glob: "*.rb"
-      run: standardrb {staged_files}
