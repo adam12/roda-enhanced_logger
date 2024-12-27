@@ -2,7 +2,7 @@ PATH
   remote: ..
   specs:
     roda-enhanced_logger (0.5.0)
-      roda (>= 3.19.0)
+      roda (~> 3.19)
       tty-logger (>= 0.3, < 1.0)
 
 GEM
@@ -20,7 +20,7 @@ GEM
     tty-color (0.6.0)
     tty-logger (0.6.0)
       pastel (~> 0.8)
-    webrick (1.7.0)
+    webrick (1.8.2)
 
 PLATFORMS
   ruby
@@ -30,7 +30,7 @@ DEPENDENCIES
   roda
   roda-enhanced_logger!
   sequel
-  webrick (~> 1.7)
+  webrick (~> 1.8)
 
 BUNDLED WITH
    2.1.4
