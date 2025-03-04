@@ -10,7 +10,7 @@ GEM
   specs:
     pastel (0.8.0)
       tty-color (~> 0.5)
-    rack (3.0.12)
+    rack (3.0.13)
     rackup (2.0.0)
       rack (>= 3)
       webrick
