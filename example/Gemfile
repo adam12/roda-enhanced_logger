@@ -4,6 +4,6 @@ gem "roda"
 gem "sequel"
 gem "roda-enhanced_logger", path: ".."
 
-gem "webrick", "~> 1.7"
+gem "webrick", "~> 1.8"
 
 gem "rackup", "~> 2.0"
